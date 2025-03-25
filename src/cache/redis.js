@@ -8,7 +8,7 @@ const redis = new Redis({
   // host: 'redis-14683.c308.sa-east-1-1.ec2.redns.redis-cloud.com',
   // port: 14683,
   // password: 'DsIhIdFDQZHTtlzwbyWe4RmOadCi6EN0',
-  tls: { rejectUnauthorized: false } // Activa TLS para Redis Essentials
+  tls: {}  // Activa TLS para Redis Essentials
 });
 
 redis.on('error', (err) => console.error('Redis Client Error:', err));
