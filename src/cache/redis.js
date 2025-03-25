@@ -5,7 +5,10 @@ const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
   password: process.env.REDIS_PASSWORD,
-  tls: {} // Opcional si tu Redis usa SSL interno
+  tls: { rejectUnauthorized: false } // Activa TLS para Redis Essentials
 });
+
+redis.on('error', (err) => console.error('Redis Client Error:', err));
+redis.on('connect', () => console.log('Connected to Redis Essentials'));
 
 export default redis;
