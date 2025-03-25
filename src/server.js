@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
+import { connectRedis } from './config/redisClient.js';
+
+await connectRedis();
 
 dotenv.config();
 

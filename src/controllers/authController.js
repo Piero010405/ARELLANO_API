@@ -1,20 +1,30 @@
 // src/controllers/authController.js
 import { login } from '../services/authService.js';
+import jwt from 'jsonwebtoken';
 import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken } from '../tokens/tokenManager.js';
 
 export const refreshTokenController = async (req, res) => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
 
-  const valid = await isRefreshTokenValid(refreshToken);
-  if (!valid) return res.status(403).json({ success: false, message: 'Invalid refresh token' });
+    // ✅ Verifica si el refreshToken aún es válido en Redis
+    const valid = await isRefreshTokenValid(refreshToken);
+    if (!valid) return res.status(403).json({ success: false, message: 'Invalid refresh token' });
 
-  const decoded = jwt.decode(refreshToken);
-  const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name });
+    // ✅ Decodifica el token sin validar la firma (seguro porque ya verificamos en Redis)
+    const decoded = jwt.decode(refreshToken);
+    if (!decoded) return res.status(403).json({ success: false, message: 'Malformed token' });
 
-  return res.json({ success: true, accessToken: newAccessToken });
+    // ✅ Genera un nuevo accessToken seguro
+    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name });
+
+    return res.json({ success: true, accessToken: newAccessToken });
+  } catch (err) {
+    console.error('Error in refreshTokenController:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
 };
-
 
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
