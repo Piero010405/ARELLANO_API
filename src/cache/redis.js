@@ -1,13 +1,12 @@
 // src/cache/redis.js
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
   password: process.env.REDIS_PASSWORD,
-  // host: 'redis-14683.c308.sa-east-1-1.ec2.redns.redis-cloud.com',
-  // port: 14683,
-  // password: 'DsIhIdFDQZHTtlzwbyWe4RmOadCi6EN0',
   tls: {}  // Activa TLS para Redis Essentials
 });
 
