@@ -1,5 +1,7 @@
 // src/database/db.js
 import sql from 'mssql';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const dbSettings = {
   user: process.env.DB_USER,
@@ -8,8 +10,8 @@ const dbSettings = {
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT, 10),
   options: {
-    encrypt: false,
-    trustServerCertificate: true
+    encrypt: process.env.DB_ENCRYPT === 'true',
+     trustServerCertificate: process.env.DB_TRUST_SERVER_CERT === 'true'
   }
 };
 
