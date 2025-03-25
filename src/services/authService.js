@@ -1,8 +1,7 @@
-// src/services/authService.js
 import sql from 'mssql';
 import { getConnection } from '../database/db.js';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '../utils/jwt.js';
+import { generateAccessToken, generateRefreshToken } from '../tokens/tokenManager.js';
 
 export async function login(email, password) {
   const pool = await getConnection();
@@ -20,10 +19,13 @@ export async function login(email, password) {
     throw new Error('Invalid credentials');
   }
 
-  const token = generateToken({ id: user.SUPERVISOR_ID, email: user.EMAIL, name: user.NOMBRE });
+  const payload = { id: user.SUPERVISOR_ID, email: user.EMAIL, name: user.NOMBRE };
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user.SUPERVISOR_ID,
       email: user.EMAIL,
