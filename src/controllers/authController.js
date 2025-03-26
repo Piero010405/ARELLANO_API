@@ -47,14 +47,6 @@ export const loginController = async (req, res) => {
       path: '/', // Disponible en toda la API
     });
 
-    // Guardamos al usuario en una cookie
-    res.cookie('user', user, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
-      sameSite: 'Strict', // Evita ataques CSRF
-      path: '/', // Disponible en toda la API
-    });
-
     return res.json({ success: true, accessToken, user });
   } catch (err) {
     return res.status(401).json({ success: false, message: err.message });

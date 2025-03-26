@@ -19,6 +19,9 @@ export async function login(email, password) {
     throw new Error('Invalid credentials');
   }
 
+  // Antes de generar un nuevo `refreshToken`, invalidar los anteriores
+  await invalidateUserRefreshTokens(user.id);
+
   const payload = { id: user.SUPERVISOR_ID, email: user.EMAIL, name: user.NOMBRE };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
