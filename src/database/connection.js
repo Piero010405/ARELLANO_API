@@ -1,7 +1,7 @@
 // src/database/db.js
 import sql from 'mssql';
 import dotenv from 'dotenv';
-import dbSettings from '../config/dbClient';
+import dbSettings from '../config/dbClient.js';
 dotenv.config();
 
 let pool;
