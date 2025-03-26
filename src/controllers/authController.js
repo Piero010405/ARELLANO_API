@@ -52,8 +52,11 @@ export const logoutController = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   const accessToken = req.headers.authorization?.split(' ')[1];
 
-  if (!refreshToken || !accessToken) {
-    return res.status(400).json({ success: false, message: 'Missing tokens' });
+  if (!refreshToken) {
+    return res.status(400).json({ success: false, message: 'Missing Refresh token' });
+  }
+  if (!accessToken) {
+    return res.status(400).json({ success: false, message: 'Missing Acces token' });
   }
 
   await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
