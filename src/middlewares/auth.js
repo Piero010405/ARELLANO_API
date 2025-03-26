@@ -39,3 +39,19 @@ export const authenticateRefreshToken = (req, res, next) => {
   req.user = decoded; // Guarda el usuario en la request para la generación del nuevo access token
   next();
 };
+
+export const authenticateLogout = (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
+
+  if (!refreshToken) {
+    return res.status(400).json({ success: false, message: 'Missing refresh token' });
+  }
+
+  const decoded = verifyRefreshToken(refreshToken);
+  if (!decoded) {
+    return res.status(403).json({ success: false, message: 'Invalid or expired refresh token' });
+  }
+
+  req.user = decoded;
+  next();
+};
