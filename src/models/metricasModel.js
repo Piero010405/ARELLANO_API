@@ -1,7 +1,7 @@
 import { getConnection } from "../database/connection.js";
 import sql from "mssql";
 
-export const getMetricas = async (userId, isAdmin) => {
+export const getMetricas = async (userName, isAdmin) => {
   const pool = await getConnection();
 
   let query = `
@@ -16,11 +16,11 @@ export const getMetricas = async (userId, isAdmin) => {
   `;
 
   if (!isAdmin) {
-    query += ` AND [AS] = @userId`;
+    query += ` AND [AS] = @userName`;
   }
 
   const request = pool.request();
-  if (!isAdmin) request.input("userId", sql.VarChar, userId);
+  if (!isAdmin) request.input("userName", sql.VarChar, userName);
 
   const result = await request.query(query);
   return result.recordset[0];
