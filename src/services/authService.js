@@ -1,5 +1,5 @@
 import sql from 'mssql';
-import { getConnection } from '../database/db.js';
+import { getConnection } from '../database/connection.js';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken, invalidateUserRefreshTokens} from '../tokens/tokenManager.js';
 
