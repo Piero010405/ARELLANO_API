@@ -37,5 +37,5 @@ export const isRefreshTokenValid = async (refreshToken) => {
 
 // Eliminar todos los `refreshTokens` previos del usuario
 export async function invalidateUserRefreshTokens(userId) {
-  await redis.del(`refreshToken:${userId}`);
+  await redisClient.del(`refreshToken:${userId}`);
 }

@@ -1,7 +1,7 @@
 import sql from 'mssql';
 import { getConnection } from '../database/db.js';
 import bcrypt from 'bcryptjs';
-import { generateAccessToken, generateRefreshToken } from '../tokens/tokenManager.js';
+import { generateAccessToken, generateRefreshToken, invalidateUserRefreshTokens} from '../tokens/tokenManager.js';
 
 export async function login(email, password) {
   const pool = await getConnection();
