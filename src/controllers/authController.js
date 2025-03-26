@@ -1,7 +1,7 @@
 // src/controllers/authController.js
 import { login } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
-import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken } from '../tokens/tokenManager.js';
+import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken, blackListedAccessToken, isTokenBlacklisted } from '../tokens/tokenManager.js';
 
 export const refreshTokenController = async (req, res) => {
   try {
@@ -41,8 +41,14 @@ export const loginController = async (req, res) => {
 
 export const logoutController = async (req, res) => {
   const { refreshToken } = req.body;
-  if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
+  const accessToken = req.headers.authorization?.split(' ')[1];
 
-  await invalidateRefreshToken(refreshToken);
-  return res.json({ success: true, message: 'User logged out and token invalidated' });
+  if (!refreshToken || !accessToken) {
+    return res.status(400).json({ success: false, message: 'Missing tokens' });
+  }
+
+  await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
+  await blackListedAccessToken(accessToken); // Expirar accessToken
+
+  return res.json({ success: true, message: 'User logged out and tokens invalidated' });
 };

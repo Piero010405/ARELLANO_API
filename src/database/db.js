@@ -15,9 +15,13 @@ const dbSettings = {
   }
 };
 
+let pool;
+
 export async function getConnection() {
   try {
-    const pool = await sql.connect(dbSettings);
+    if (!pool) {
+      pool = await sql.connect(dbSettings);
+    }
     return pool;
   } catch (err) {
     console.error('DB Connection Error:', err);
