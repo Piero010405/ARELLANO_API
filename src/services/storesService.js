@@ -7,6 +7,6 @@ export const obtenerStores = async (user) => {
     }
 };
 
-export const obtenerStoreById = async (storeId,user) => {
+export const obtenerStoreById = async (storeId, user) => {
     return await getStoreById(storeId, user.name, user.admin);
 };
