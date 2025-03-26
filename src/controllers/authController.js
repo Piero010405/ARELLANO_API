@@ -1,7 +1,7 @@
 // src/controllers/authController.js
 import { login } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
-import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken, blackListedAccessToken, generateRefreshToken } from '../tokens/tokenManager.js';
+import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken, blackListedAccessToken } from '../tokens/tokenManager.js';
 
 export const refreshTokenController = async (req, res) => {
   try {

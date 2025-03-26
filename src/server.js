@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
 import { connectRedis } from './config/redisClient.js';
 
@@ -11,7 +12,9 @@ await connectRedis();
 
 const app = express();
 app.use(helmet());
-app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors({credentials: true}));
 app.use(express.json());
 
 // Rutas
