@@ -19,7 +19,7 @@ export const refreshTokenController = async (req, res) => {
     if (!decoded) return res.status(403).json({ success: false, message: 'Malformed token' });
 
     // ✅ Genera un nuevo accessToken seguro
-    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name });
+    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name, admin: decoded.admin });
 
     return res.json({ success: true, accessToken: newAccessToken });
   } catch (err) {
@@ -55,19 +55,31 @@ export const loginController = async (req, res) => {
 
 export const logoutController = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  const accessToken = req.headers.authorization?.split(' ')[1];
+  
   if (!refreshToken) {
     return res.status(400).json({ success: false, message: 'Missing Refresh token' });
   }
   
-  const accessToken = req.headers.authorization?.split(' ')[1];
   if (!accessToken) {
     return res.status(400).json({ success: false, message: 'Missing Access token' });
   }
 
-  await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
-  await blackListedAccessToken(accessToken); // Expirar accessToken
+  try {
+    // Intentar invalidar el refreshToken (si ya no existe, no da error)
+    const wasInvalidated = await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
 
-  res.clearCookie('refreshToken', { path: '/' }); // BORRAMOS LA COOKIE
+    // Invalidar el accessToken (si existe en la blacklist)
+    await blackListedAccessToken(accessToken); // Expirar accessToken
 
-  return res.json({ success: true, message: 'User logged out and tokens invalidated' });
+    // Borrar la cookie solo si se eliminó correctamente
+    if (wasInvalidated) {
+      res.clearCookie('refreshToken', { path: '/' }); // BORRAMOS LA COOKIE
+    }
+
+    return res.json({ success: true, message: 'User logged out and tokens invalidated' });
+  } catch (error) {
+    console.error("Error en logout:", error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 };
