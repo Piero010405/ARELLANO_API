@@ -1,5 +1,5 @@
-import { getConnection } from "../database/connection.js";
 import sql from "mssql";
+import { getConnection } from "../database/connection.js";
 
 export const getStores = async (userName, isAdmin, offset, pageSize) => {
   const pool = await getConnection();

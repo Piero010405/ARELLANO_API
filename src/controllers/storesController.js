@@ -1,4 +1,4 @@
-import { obtenerStores, obtenerStoreById } from "../services/storesService";
+import { obtenerStores, obtenerStoreById } from "../services/storesService.js";
 
 export const storesController = async (req, res) => {
   try {

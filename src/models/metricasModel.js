@@ -1,5 +1,5 @@
-import { getConnection } from "../database/connection.js";
-import sql from "mssql";
+import sql from 'mssql';
+import { getConnection } from '../database/connection.js';
 
 export const getMetricas = async (userName, isAdmin) => {
   const pool = await getConnection();

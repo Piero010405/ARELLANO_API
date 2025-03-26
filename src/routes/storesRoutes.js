@@ -4,6 +4,6 @@ import { authenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.post('/stores', authenticate, storesController);
+router.get('/', authenticate, storesController);
 
 export default router;
