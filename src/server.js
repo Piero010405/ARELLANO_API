@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
 import metricasRoutes from "./routes/metricasRoutes.js";
+import proyeccionesRoutes from "./routes/proyeccionesRoutes.js";
 import { connectRedis } from './config/redisClient.js';
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json());
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use("/api/metricas", metricasRoutes);
+app.use('/api', proyeccionesRoutes);
 
 // Server
 const PORT = process.env.PORT || 4000;
