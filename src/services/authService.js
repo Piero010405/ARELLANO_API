@@ -28,6 +28,7 @@ export async function login(email, password) {
     refreshToken,
     user: {
       id: user.SUPERVISOR_ID,
+      admin: user.ADMIN,
       email: user.EMAIL,
       name: user.NOMBRE,
       photo: user.FOTO

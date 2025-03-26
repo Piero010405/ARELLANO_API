@@ -2,6 +2,8 @@
 import { login } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
 import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken, blackListedAccessToken } from '../tokens/tokenManager.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const refreshTokenController = async (req, res) => {
   try {
@@ -32,10 +34,21 @@ export const loginController = async (req, res) => {
   if (!email || !password) return res.status(400).json({ success: false, message: 'Email and password are required' });
 
   try {
-    const { accessToken, refreshToken, user } = await login(email, password);
+    const { accessToken: accessTokenPromise, refreshToken: refreshTokenPromise, user } = await login(email, password);
+
+    const refreshToken = await refreshTokenPromise;
+    const accessToken = await accessTokenPromise;
 
     // Guardar el refreshToken en una cookie httpOnly (NO accesible desde JavaScript)
     res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
+      sameSite: 'Strict', // Evita ataques CSRF
+      path: '/', // Disponible en toda la API
+    });
+
+    // Guardamos al usuario en una cookie
+    res.cookie('user', user, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
       sameSite: 'Strict', // Evita ataques CSRF
@@ -50,13 +63,13 @@ export const loginController = async (req, res) => {
 
 export const logoutController = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  const accessToken = req.headers.authorization?.split(' ')[1];
-
   if (!refreshToken) {
     return res.status(400).json({ success: false, message: 'Missing Refresh token' });
   }
+  
+  const accessToken = req.headers.authorization?.split(' ')[1];
   if (!accessToken) {
-    return res.status(400).json({ success: false, message: 'Missing Acces token' });
+    return res.status(400).json({ success: false, message: 'Missing Access token' });
   }
 
   await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
