@@ -25,7 +25,7 @@ export const authenticate = async (req, res, next) => {
 
 //Middleware para verificar refresh tokens cuando se necesite renovar access tokens
 export const authenticateRefreshToken = (req, res, next) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     return res.status(400).json({ success: false, message: 'Missing refresh token' });

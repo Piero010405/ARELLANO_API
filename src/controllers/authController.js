@@ -7,7 +7,7 @@ dotenv.config();
 
 export const refreshTokenController = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
 
     // ✅ Verifica si el refreshToken aún es válido en Redis
