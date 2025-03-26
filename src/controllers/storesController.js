@@ -10,3 +10,15 @@ export const storesController = async (req, res) => {
     return res.status(500).json({ error: "Error al obtener tiendas" });
   }
 };
+
+export const storesByIdController = async (req, res) => {
+
+};
+
+export const storesFaltantesController = async (req, res) => {
+
+};
+
+export const storesProyectadasController = async (req, res) => {
+  
+};
