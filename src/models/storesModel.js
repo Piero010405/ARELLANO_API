@@ -67,3 +67,55 @@ export const getStoreById = async (storeId, userName, isAdmin) => {
 
     return result.recordset.length > 0 ? result.recordset[0] : null;
 }
+
+export const getTotalStoresFaltantes = async (userName, isAdmin) => {
+    const pool = await getConnection();
+
+    let query = `
+      SELECT 
+        PERIOD, CODIGO, AMP, [AS], NOMBRE_AUDITOR, CLUSTER, TERRITORIO, PROVINCIA, DISTRITO, 
+        CANAL, UBICACION, STATUS_ACTUAL_EFECTIVO_E2E, STATUS_PROYECTADO, OOEE_A_REPORTAR, 
+        RAZON_OOEE, COMENTARIO_OOEE, FECHA_DE_VISITA_PERIODO_ANTERIOR_E2E, 
+        FECHA_DE_VISITA_AJUSTADA_CALC, DIAS_TRANSCURRIDOS_EFECTIVOS, 
+        DT_PROYECTADO, DT_A_REPORTAR, RAZON_DT, COMENTARIO_DT
+      FROM dbo.INDICADORES_DEP 
+      WHERE PERIOD = (SELECT E2E_ID FROM dbo.NIELSSEN_CURRENT_PERIOD WHERE IS_CURRENT = 1)
+      AND (RAZON_OOEE = 'SIN RAZÓN REGISTRADA POR AS' OR RAZON_DT = 'SIN RAZÓN REGISTRADA POR AS')
+    `;
+
+    if (!isAdmin) {
+        query += ` AND [AS] = @userName`;
+    }
+
+    const result = await pool.request()
+    .input("userName", sql.VarChar, userName)
+    .query(query);
+
+    return result.recordset[0]?.total || 0;
+}
+
+export const getTotalStoresProyectadas = async (userName, isAdmin) => {
+    const pool = await getConnection();
+
+    let query = `
+      SELECT 
+        PERIOD, CODIGO, AMP, [AS], NOMBRE_AUDITOR, CLUSTER, TERRITORIO, PROVINCIA, DISTRITO, 
+        CANAL, UBICACION, STATUS_ACTUAL_EFECTIVO_E2E, STATUS_PROYECTADO, OOEE_A_REPORTAR, 
+        RAZON_OOEE, COMENTARIO_OOEE, FECHA_DE_VISITA_PERIODO_ANTERIOR_E2E, 
+        FECHA_DE_VISITA_AJUSTADA_CALC, DIAS_TRANSCURRIDOS_EFECTIVOS, 
+        DT_PROYECTADO, DT_A_REPORTAR, RAZON_DT, COMENTARIO_DT
+      FROM dbo.INDICADORES_DEP 
+      WHERE PERIOD = (SELECT E2E_ID FROM dbo.NIELSSEN_CURRENT_PERIOD WHERE IS_CURRENT = 1)
+      AND ((STATUS_ACTUAL_EFECTIVO_E2E = 'UNKNOWN' AND STATUS_PROYECTADO IN ('NOTAUDITED', 'CANCELLED')) OR ([FUERA_DE_DT?_LIM_INF] = 'REGULAR' AND [FUERA_DE_DT?_LIM_SUP] = 'REGULAR' AND DT_PROYECTADO = 'FUERA DE DT'))
+    `;
+
+    if (!isAdmin) {
+        query += ` AND [AS] = @userName`;
+    }
+
+    const result = await pool.request()
+    .input("userName", sql.VarChar, userName)
+    .query(query);
+
+    return result.recordset[0]?.total || 0;
+}

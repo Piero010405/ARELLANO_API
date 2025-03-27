@@ -1,4 +1,4 @@
-import { obtenerStores, obtenerStoreById } from "../services/storesService.js";
+import { obtenerStores, obtenerStoreById, obtenerStoresFaltantes, obtenerStoresProyectadas } from "../services/storesService.js";
 
 export const storesController = async (req, res) => {
   try {
@@ -23,9 +23,23 @@ export const storesByIdController = async (id, req, res) => {
 };
 
 export const storesFaltantesController = async (req, res) => {
-
+  try {
+    const storesData = await obtenerStoresFaltantes(req.user);
+    
+    res.status(200).json(storesData);
+  } catch (err) {
+    console.error("Error al obtener las tiendas faltantes:", err);
+    return res.status(500).json({ error: "Error al obtener tiendas faltantes" });
+  }
 };
 
 export const storesProyectadasController = async (req, res) => {
-
+  try {
+    const storesData = await obtenerStoresProyectadas(req.user);
+    
+    res.status(200).json(storesData);
+  } catch (err) {
+    console.error("Error al obtener las tiendas proyectadas:", err);
+    return res.status(500).json({ error: "Error al obtener tiendas proyectadas" });
+  }
 };
