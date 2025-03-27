@@ -11,8 +11,9 @@ export const storesController = async (req, res) => {
   }
 };
 
-export const storesByIdController = async (id, req, res) => {
+export const storesByIdController = async (req, res) => {
   try {
+      const { id } = req.params;
       const store = await obtenerStoreById(id, req.user);
       
       res.status(200).json(store);

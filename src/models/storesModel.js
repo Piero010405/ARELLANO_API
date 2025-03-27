@@ -91,7 +91,7 @@ export const getTotalStoresFaltantes = async (userName, isAdmin) => {
     .input("userName", sql.VarChar, userName)
     .query(query);
 
-    return result.recordset[0]?.total || 0;
+    return result.recordset;
 }
 
 export const getTotalStoresProyectadas = async (userName, isAdmin) => {
@@ -117,5 +117,5 @@ export const getTotalStoresProyectadas = async (userName, isAdmin) => {
     .input("userName", sql.VarChar, userName)
     .query(query);
 
-    return result.recordset[0]?.total || 0;
+    return result.recordset;
 }
