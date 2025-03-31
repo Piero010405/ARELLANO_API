@@ -28,6 +28,15 @@ export const refreshTokenController = async (req, res) => {
   }
 };
 
+export const validateTokenController = async (req, res) => {
+  try {
+    return res.status(200).json({ success: true, user: req.user });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
 

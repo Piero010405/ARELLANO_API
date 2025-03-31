@@ -40,6 +40,24 @@ export const authenticateRefreshToken = (req, res, next) => {
   next();
 };
 
+export const authenticateAccessToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ success: false, message: "Access token missing" });
+  }
+
+  const accessToken = authHeader.split(" ")[1];
+
+  try {
+    const decoded = verifyAccessToken(accessToken);
+    req.user = decoded; // Guarda los datos del usuario en la request
+    next();
+  } catch (error) {
+    return res.status(403).json({ success: false, message: "Invalid or expired access token" });
+  }
+};
+
 export const authenticateLogout = (req, res, next) => {
   const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
   const accessToken = req.headers.authorization?.split(' ')[1];
