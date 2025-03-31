@@ -19,7 +19,7 @@ export const refreshTokenController = async (req, res) => {
     if (!decoded) return res.status(403).json({ success: false, message: 'Malformed token' });
 
     // ✅ Genera un nuevo accessToken seguro
-    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name, admin: decoded.admin });
+    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name, admin: decoded.admin, photo: decoded.photo });
 
     return res.json({ success: true, accessToken: newAccessToken });
   } catch (err) {

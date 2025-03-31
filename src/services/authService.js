@@ -22,7 +22,7 @@ export async function login(email, password) {
   // Antes de generar un nuevo `refreshToken`, invalidar los anteriores
   await invalidateUserRefreshTokens(user.id);
 
-  const payload = { id: user.SUPERVISOR_ID, email: user.EMAIL, name: user.NOMBRE, admin: user.ADMIN };
+  const payload = { id: user.SUPERVISOR_ID, email: user.EMAIL, name: user.NOMBRE, admin: user.ADMIN, photo: user.FOTO };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
