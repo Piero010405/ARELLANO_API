@@ -4,6 +4,6 @@ import { authenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.post('/proyecciones', authenticate, postProyeccion);
+router.post('/', authenticate, postProyeccion);
 
 export default router;
