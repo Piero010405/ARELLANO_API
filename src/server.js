@@ -7,11 +7,11 @@ import authRoutes from './routes/authRoutes.js';
 import metricasRoutes from "./routes/metricasRoutes.js";
 import proyeccionesRoutes from "./routes/proyeccionesRoutes.js";
 import storesRoutes from "./routes/storesRoutes.js";
-import { connectRedis } from './config/redisClient.js';
+// import { connectRedis } from './config/redisClient.js';
 
 dotenv.config();
 
-await connectRedis();
+// await connectRedis();
 
 const app = express();
 app.use(helmet());
