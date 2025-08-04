@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import metricasRoutes from "./routes/metricasRoutes.js";
 import proyeccionesRoutes from "./routes/proyeccionesRoutes.js";
 import storesRoutes from "./routes/storesRoutes.js";
+import { errorHandler } from './middlewares/errorHandler.js';
 // import { connectRedis } from './config/redisClient.js';
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({credentials: true}));
 app.use(express.json());
+app.use(errorHandler);
 
 // Rutas
 app.use('/api/auth', authRoutes);
