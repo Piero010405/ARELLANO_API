@@ -42,7 +42,7 @@ export const authenticateRefreshToken = (req, res, next) => {
 
 export const authenticateAccessToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-
+  
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ success: false, message: "Access token missing" });
   }

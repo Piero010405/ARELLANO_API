@@ -58,6 +58,7 @@ export const loginController = async (req, res) => {
 
     return res.json({ success: true, accessToken, user });
   } catch (err) {
+    console.error('Error in loginController:', err);
     return res.status(401).json({ success: false, message: err.message });
   }
 };
