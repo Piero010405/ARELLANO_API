@@ -9,11 +9,8 @@ import proyeccionesRoutes from "./routes/proyeccionesRoutes.js";
 import storesRoutes from "./routes/storesRoutes.js";
 import { errorHandler } from './middlewares/errorHandler.js';
 dotenv.config();
-// import { connectRedis } from './config/redisClient.js';
 
 dotenv.config();
-
-// await connectRedis();
 
 const app = express();
 app.use(helmet());

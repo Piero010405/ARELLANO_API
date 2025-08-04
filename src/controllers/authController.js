@@ -10,11 +10,11 @@ export const refreshTokenController = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
 
-    // ✅ Verifica si el refreshToken aún es válido en Redis
+    // ✅ Verifica si el refreshToken aún es válido en SQL SERVER
     const valid = await isRefreshTokenValid(refreshToken);
     if (!valid) return res.status(403).json({ success: false, message: 'Invalid refresh token' });
 
-    // ✅ Decodifica el token sin validar la firma (seguro porque ya verificamos en Redis)
+    // ✅ Decodifica el token sin validar la firma (seguro porque ya verificamos en SQL SERVER (antes REDIS))
     const decoded = jwt.decode(refreshToken);
     if (!decoded) return res.status(403).json({ success: false, message: 'Malformed token' });
 
