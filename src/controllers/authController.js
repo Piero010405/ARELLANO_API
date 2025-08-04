@@ -1,7 +1,7 @@
 // src/controllers/authController.js
 import { login } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
-import { isRefreshTokenValid, invalidateRefreshToken, generateAccessToken, blackListedAccessToken } from '../tokens/tokenManager.js';
+import { isRefreshTokenValid, invalidateUserRefreshTokens, generateAccessToken, blackListedAccessToken } from '../tokens/tokenManager.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -64,28 +64,40 @@ export const loginController = async (req, res) => {
 };
 
 export const logoutController = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+  // const refreshToken = req.cookies.refreshToken;
   const accessToken = req.headers.authorization?.split(' ')[1];
   
-  if (!refreshToken) {
-    return res.status(400).json({ success: false, message: 'Missing Refresh token' });
-  }
+  // if (!refreshToken) {
+  //   return res.status(400).json({ success: false, message: 'Missing Refresh token' });
+  // }
   
   if (!accessToken) {
     return res.status(400).json({ success: false, message: 'Missing Access token' });
   }
 
   try {
-    // Intentar invalidar el refreshToken (si ya no existe, no da error)
-    const wasInvalidated = await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
-
-    // Invalidar el accessToken (si existe en la blacklist)
-    await blackListedAccessToken(accessToken); // Expirar accessToken
-
-    // Borrar la cookie solo si se eliminó correctamente
-    if (wasInvalidated) {
-      res.clearCookie('refreshToken', { path: '/' }); // BORRAMOS LA COOKIE
+    // Invalida TODOS los refreshTokens de ese usuario
+    if (req.user?.id) {
+      await invalidateUserRefreshTokens(req.user.id);
     }
+    
+    // Invalidar el accessToken (si existe en la blacklist)
+    // Opcional: blacklist del accessToken actual
+    if (accessToken) {
+      await blackListedAccessToken(accessToken);
+    }
+
+    // // Intentar invalidar el refreshToken (si ya no existe, no da error)
+    // const wasInvalidated = await invalidateRefreshToken(refreshToken); // Invalidar refreshToken
+    // Borrar la cookie solo si se eliminó correctamente
+
+    // Borrar la cookie, sin importar si existe o no
+    res.clearCookie('refreshToken', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
 
     return res.json({ success: true, message: 'User logged out and tokens invalidated' });
   } catch (error) {

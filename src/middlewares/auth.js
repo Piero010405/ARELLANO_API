@@ -59,29 +59,34 @@ export const authenticateAccessToken = (req, res, next) => {
 };
 
 export const authenticateLogout = (req, res, next) => {
-  const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
-  const accessToken = req.headers.authorization?.split(' ')[1];
+  // const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
 
-  if (!refreshToken) {
-    return res.status(400).json({ success: false, message: 'Missing refresh token' });
-  }
+  // if (!refreshToken) {
+  //   return res.status(400).json({ success: false, message: 'Missing refresh token' });
+  // }
+
+  const accessToken = req.headers.authorization?.split(' ')[1];
 
   if (!accessToken) {
     return res.status(400).json({ success: false, message: 'Missing access token' });
   }
 
   const decodedAccess = verifyAccessToken(accessToken);
-  const decodedRefresh = verifyRefreshToken(refreshToken);
+  // const decodedRefresh = verifyRefreshToken(refreshToken);
 
-  if (!decodedAccess || !decodedRefresh) {
+  // if (!decodedAccess || !decodedRefresh) {
+  //   return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
+  // }
+
+  // if (decodedAccess.userId !== decodedRefresh.userId) {
+  //   return res.status(403).json({ success: false, message: 'Tokens do not match' });
+  // }
+
+  if (!decodedAccess) {
     return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
   }
 
-  if (decodedAccess.userId !== decodedRefresh.userId) {
-    return res.status(403).json({ success: false, message: 'Tokens do not match' });
-  }
-
   req.user = decodedAccess;
-  req.refreshToken = refreshToken;
+  // req.refreshToken = refreshToken;
   next();
 };
