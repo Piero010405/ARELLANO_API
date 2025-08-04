@@ -51,9 +51,9 @@ export const loginController = async (req, res) => {
     // Guardar el refreshToken en una cookie httpOnly (NO accesible desde JavaScript)
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
-      sameSite: 'Strict', // Evita ataques CSRF
-      path: '/', // Disponible en toda la API
+      secure: process.env.NODE_ENV === 'production' ? true : false, // ← debe ser `false` en dev
+      sameSite: 'lax', // ← usa 'none' solo si estás cruzando dominios + HTTPS
+      path: '/',
     });
 
     return res.json({ success: true, accessToken, user });
