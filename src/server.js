@@ -17,11 +17,11 @@ dotenv.config();
 const app = express();
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
-  credentials: true,
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
 }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(errorHandler);
 
