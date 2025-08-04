@@ -1,13 +1,13 @@
 import sql from 'mssql';
-import { getConnection } from '../database/connection.js';
+import { getConnection, withRetry } from '../database/connection.js';
 
 export const insertProyeccion = async (proyeccionData) => {
-    const {
-        PERIOD, SMS_ID, AS, STATUS_PROYECTADO,
-        RAZON, COMENTARIO, SE_ANULARA_PROXIMO_PERIODO, DETALLE_RAZON
-    } = proyeccionData;
+    return withRetry(async () => {
+        const {
+            PERIOD, SMS_ID, AS, STATUS_PROYECTADO,
+            RAZON, COMENTARIO, SE_ANULARA_PROXIMO_PERIODO, DETALLE_RAZON
+        } = proyeccionData;
 
-    try {
         const pool = await getConnection();
         await pool
             .request()
@@ -26,7 +26,5 @@ export const insertProyeccion = async (proyeccionData) => {
             `);
 
         return { success: true, message: 'Proyección registrada correctamente.' };
-    } catch (error) {
-        throw new Error(error.message);
-    }
+    });
 };
