@@ -2,7 +2,10 @@ import { obtenerStores, obtenerStoreById, obtenerStoresFaltantes, obtenerStoresP
 
 export const storesController = async (req, res) => {
   try {
-    const storesData = await obtenerStores(req.user);
+    const pageSize = parseInt(req.query.pageSize || "10");
+    const offset = parseInt(req.query.offset || "0");
+    
+    const storesData = await obtenerStores(req.user, offset, pageSize);
     
     res.status(200).json(storesData);
   } catch (err) {

@@ -1,8 +1,8 @@
 import { getStores, getStoreById, getTotalStores, getTotalStoresFaltantes, getTotalStoresProyectadas } from "../models/storesModel.js";
 
-export const obtenerStores = async (user) => {
+export const obtenerStores = async (user, offset, pageSize) => {
     return {
-        stores: await getStores(user.name, user.admin, 0, 10), // Default: 10 registros
+        stores: await getStores(user.name, user.admin,  offset || 0, pageSize || 10),
         total: await getTotalStores(user.name, user.admin),
     }
 };
