@@ -5,37 +5,7 @@ import { isRefreshTokenValid, invalidateUserRefreshTokens, generateAccessToken, 
 import dotenv from 'dotenv';
 dotenv.config();
 
-export const refreshTokenController = async (req, res) => {
-  try {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
-
-    // ✅ Verifica si el refreshToken aún es válido en SQL SERVER
-    const valid = await isRefreshTokenValid(refreshToken);
-    if (!valid) return res.status(403).json({ success: false, message: 'Invalid refresh token' });
-
-    // ✅ Decodifica el token sin validar la firma (seguro porque ya verificamos en SQL SERVER (antes REDIS))
-    const decoded = jwt.decode(refreshToken);
-    if (!decoded) return res.status(403).json({ success: false, message: 'Malformed token' });
-
-    // ✅ Genera un nuevo accessToken seguro
-    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name, admin: decoded.admin, photo: decoded.photo });
-
-    return res.json({ success: true, accessToken: newAccessToken });
-  } catch (err) {
-    console.error('Error in refreshTokenController:', err);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-};
-
-export const validateTokenController = async (req, res) => {
-  try {
-    return res.status(200).json({ success: true, user: req.user });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
+// * LOGIN CONTROLLER
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
 
@@ -62,6 +32,7 @@ export const loginController = async (req, res) => {
   }
 };
 
+// * LOGOUT CONTROLLER
 export const logoutController = async (req, res) => {
   // const refreshToken = req.cookies.refreshToken;
   const accessToken = req.headers.authorization?.split(' ')[1];
@@ -102,5 +73,38 @@ export const logoutController = async (req, res) => {
   } catch (error) {
     console.error("Error en logout:", error);
     return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+// * REFRESH TOKEN CONTROLLER
+export const refreshTokenController = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.status(400).json({ success: false, message: 'Missing refresh token' });
+
+    // ✅ Verifica si el refreshToken aún es válido en SQL SERVER
+    const valid = await isRefreshTokenValid(refreshToken);
+    if (!valid) return res.status(403).json({ success: false, message: 'Invalid refresh token' });
+
+    // ✅ Decodifica el token sin validar la firma (seguro porque ya verificamos en SQL SERVER (antes REDIS))
+    const decoded = jwt.decode(refreshToken);
+    if (!decoded) return res.status(403).json({ success: false, message: 'Malformed token' });
+
+    // ✅ Genera un nuevo accessToken seguro
+    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name, admin: decoded.admin, photo: decoded.photo });
+
+    return res.json({ success: true, accessToken: newAccessToken });
+  } catch (err) {
+    console.error('Error in refreshTokenController:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+// * VALIDATE TOKEN CONTROLLER
+export const validateTokenController = async (req, res) => {
+  try {
+    return res.status(200).json({ success: true, user: req.user });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
