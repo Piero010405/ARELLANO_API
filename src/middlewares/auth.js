@@ -3,25 +3,42 @@ import { verifyAccessToken, verifyRefreshToken } from '../utils/jwt.js';
 import { isTokenBlacklisted } from '../tokens/tokenManager.js';
 import { validateUserSession } from '../services/sessionService.js';
 
-//Middleware para proteger rutas con un access token válido
-export const authenticate = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+/**
+ * Middleware general para proteger rutas seguras.
+ * Valida token + blacklist + sesión activa en SQL Server.
+ */
+export const requireAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'No token provided' });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ success: false, message: "Access token missing" });
   }
 
-  if (await isTokenBlacklisted(token)) {
-    return res.status(403).json({ success: false, message: 'Token has been revoked' });
-  }
+  const accessToken = authHeader.split(" ")[1];
 
-  const decoded = verifyAccessToken(token);
-  if (!decoded) {
-    return res.status(403).json({ success: false, message: 'Invalid or expired token' });
-  }
+  try {
+    // 1. Validar token y asegurarse que no esté en la blacklist
+    if (await isTokenBlacklisted(accessToken)) {
+      return res.status(403).json({ success: false, message: 'Access token has been revoked' });
+    }
 
-  req.user = decoded;
-  next();
+    const decoded = verifyAccessToken(accessToken);
+    if (!decoded) {
+      return res.status(403).json({ success: false, message: "Invalid or expired access token" });
+    }
+
+    // 2. Validar sesión activa en base de datos
+    const isValidSession = await validateUserSession(decoded.id, decoded.sessionId);
+    if (!isValidSession) {
+      return res.status(403).json({ success: false, message: 'Session is no longer valid' });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error("Auth Middleware Error:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };
 
 //Middleware para verificar refresh tokens cuando se necesite renovar access tokens
@@ -38,61 +55,5 @@ export const authenticateRefreshToken = (req, res, next) => {
   }
 
   req.user = decoded; // Guarda el usuario en la request para la generación del nuevo access token
-  next();
-};
-
-export const authenticateAccessToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ success: false, message: "Access token missing" });
-  }
-
-  const accessToken = authHeader.split(" ")[1];
-
-  try {
-    const decoded = verifyAccessToken(accessToken);
-    
-    const isValidSession = await validateUserSession(decoded.id, decoded.sessionId);
-    if (!isValidSession) {
-      return res.status(403).json({ success: false, message: 'Session is no longer valid' });
-    }
-
-    req.user = decoded; // Guarda los datos del usuario en la request
-    next();
-  } catch (error) {
-    return res.status(403).json({ success: false, message: "Invalid or expired access token" });
-  }
-};
-
-export const authenticateLogout = (req, res, next) => {
-  const accessToken = req.headers.authorization?.split(' ')[1];
-
-  if (!accessToken) {
-    return res.status(400).json({ success: false, message: 'Missing access token' });
-  }
-
-  const decodedAccess = verifyAccessToken(accessToken);
-
-  if (!decodedAccess) {
-    return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
-  }
-
-  // const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
-  // if (!refreshToken) {
-  //   return res.status(400).json({ success: false, message: 'Missing refresh token' });
-  // }
-
-  // const decodedRefresh = verifyRefreshToken(refreshToken);
-  // if (!decodedAccess || !decodedRefresh) {
-  //   return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
-  // }
-  // if (decodedAccess.userId !== decodedRefresh.userId) {
-  //   return res.status(403).json({ success: false, message: 'Tokens do not match' });
-  // }
-
-  // req.refreshToken = refreshToken;
-  req.user = decodedAccess;
-  
   next();
 };

@@ -1,9 +1,9 @@
 import express from 'express';
 import { postProyeccion } from '../controllers/proyeccionesController.js';
-import { authenticate } from '../middlewares/auth.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.post('/', authenticate, postProyeccion);
+router.post('/', requireAuth, postProyeccion);
 
 export default router;
