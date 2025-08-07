@@ -36,7 +36,6 @@ export const validateTokenController = async (req, res) => {
   }
 };
 
-
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
 
