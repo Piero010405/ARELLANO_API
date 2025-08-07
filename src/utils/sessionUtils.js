@@ -1,10 +1,10 @@
 export function generateSessionPayload(user, sessionId) {
   return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    admin: user.admin,
-    photo: user.photo,
-    sessionId
+    id: user.SUPERVISOR_ID,
+    email: user.EMAIL,
+    name: user.NOMBRE,
+    admin: user.ADMIN,
+    photo: user.FOTO,
+    sessionId,
   };
 }

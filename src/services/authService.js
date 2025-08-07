@@ -1,3 +1,4 @@
+// src/services/authService.js
 import sql from 'mssql';
 import { getConnection } from '../database/connection.js';
 import bcrypt from 'bcryptjs';
@@ -23,9 +24,9 @@ export async function login(email, password) {
 
   // Antes de generar un nuevo `refreshToken`, invalidar los anteriores
   await invalidateUserRefreshTokens(user.SUPERVISOR_ID);
-
+  
   // * SESION UNICA
-  const sessionId = await assignUserSession(user.id);
+  const sessionId = await assignUserSession(user.SUPERVISOR_ID);
   const payload = generateSessionPayload(user, sessionId);
 
   const accessToken = generateAccessToken(payload);
