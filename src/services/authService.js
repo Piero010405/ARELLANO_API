@@ -39,8 +39,8 @@ export async function login(email, password) {
       admin: user.ADMIN,
       email: user.EMAIL,
       name: user.NOMBRE,
-      photo: user.FOTO
+      photo: user.FOTO,
+      sessionId
     },
-    sessionId
   };
 }

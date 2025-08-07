@@ -1,6 +1,7 @@
 // src/middlewares/auth.js
 import { verifyAccessToken, verifyRefreshToken } from '../utils/jwt.js';
 import { isTokenBlacklisted } from '../tokens/tokenManager.js';
+import { validateUserSession } from '../services/sessionService.js';
 
 //Middleware para proteger rutas con un access token válido
 export const authenticate = async (req, res, next) => {
@@ -40,7 +41,7 @@ export const authenticateRefreshToken = (req, res, next) => {
   next();
 };
 
-export const authenticateAccessToken = (req, res, next) => {
+export const authenticateAccessToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -51,6 +52,12 @@ export const authenticateAccessToken = (req, res, next) => {
 
   try {
     const decoded = verifyAccessToken(accessToken);
+    
+    const isValidSession = await validateUserSession(decoded.id, decoded.sessionId);
+    if (!isValidSession) {
+      return res.status(403).json({ success: false, message: 'Session is no longer valid' });
+    }
+
     req.user = decoded; // Guarda los datos del usuario en la request
     next();
   } catch (error) {
@@ -59,12 +66,6 @@ export const authenticateAccessToken = (req, res, next) => {
 };
 
 export const authenticateLogout = (req, res, next) => {
-  // const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
-
-  // if (!refreshToken) {
-  //   return res.status(400).json({ success: false, message: 'Missing refresh token' });
-  // }
-
   const accessToken = req.headers.authorization?.split(' ')[1];
 
   if (!accessToken) {
@@ -72,21 +73,26 @@ export const authenticateLogout = (req, res, next) => {
   }
 
   const decodedAccess = verifyAccessToken(accessToken);
-  // const decodedRefresh = verifyRefreshToken(refreshToken);
-
-  // if (!decodedAccess || !decodedRefresh) {
-  //   return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
-  // }
-
-  // if (decodedAccess.userId !== decodedRefresh.userId) {
-  //   return res.status(403).json({ success: false, message: 'Tokens do not match' });
-  // }
 
   if (!decodedAccess) {
     return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
   }
 
-  req.user = decodedAccess;
+  // const refreshToken = req.cookies.refreshToken; // Se obtiene automáticamente
+  // if (!refreshToken) {
+  //   return res.status(400).json({ success: false, message: 'Missing refresh token' });
+  // }
+
+  // const decodedRefresh = verifyRefreshToken(refreshToken);
+  // if (!decodedAccess || !decodedRefresh) {
+  //   return res.status(403).json({ success: false, message: 'Invalid or expired tokens' });
+  // }
+  // if (decodedAccess.userId !== decodedRefresh.userId) {
+  //   return res.status(403).json({ success: false, message: 'Tokens do not match' });
+  // }
+
   // req.refreshToken = refreshToken;
+  req.user = decodedAccess;
+  
   next();
 };

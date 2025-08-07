@@ -2,6 +2,7 @@
 import { login } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
 import { isRefreshTokenValid, invalidateUserRefreshTokens, generateAccessToken, blackListedAccessToken } from '../tokens/tokenManager.js';
+import { validateUserSession, clearUserSession } from '../services/sessionService.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -35,20 +36,21 @@ export const loginController = async (req, res) => {
 // * LOGOUT CONTROLLER
 export const logoutController = async (req, res) => {
   // const refreshToken = req.cookies.refreshToken;
-  const accessToken = req.headers.authorization?.split(' ')[1];
-  
   // if (!refreshToken) {
   //   return res.status(400).json({ success: false, message: 'Missing Refresh token' });
   // }
+
+  const accessToken = req.headers.authorization?.split(' ')[1];
   
   if (!accessToken) {
     return res.status(400).json({ success: false, message: 'Missing Access token' });
   }
 
   try {
-    // Invalida TODOS los refreshTokens de ese usuario
+    // Invalida TODOS los refreshTokens de ese usuario y las sesiones
     if (req.user?.id) {
       await invalidateUserRefreshTokens(req.user.id);
+      await clearUserSession(req.user.id);
     }
     
     // Invalidar el accessToken (si existe en la blacklist)
@@ -103,6 +105,13 @@ export const refreshTokenController = async (req, res) => {
 // * VALIDATE TOKEN CONTROLLER
 export const validateTokenController = async (req, res) => {
   try {
+    const { id, sessionId } = req.user;
+
+    const isValid = await validateUserSession(id, sessionId);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Invalid session' });
+    }
+
     return res.status(200).json({ success: true, user: req.user });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Internal server error" });
