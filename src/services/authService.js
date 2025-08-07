@@ -2,6 +2,8 @@ import sql from 'mssql';
 import { getConnection } from '../database/connection.js';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken, invalidateUserRefreshTokens} from '../tokens/tokenManager.js';
+import { assignUserSession } from '../services/sessionService.js';
+import { generateSessionPayload } from '../utils/sessionUtils.js';
 
 export async function login(email, password) {
   const pool = await getConnection();
@@ -22,7 +24,10 @@ export async function login(email, password) {
   // Antes de generar un nuevo `refreshToken`, invalidar los anteriores
   await invalidateUserRefreshTokens(user.SUPERVISOR_ID);
 
-  const payload = { id: user.SUPERVISOR_ID, email: user.EMAIL, name: user.NOMBRE, admin: user.ADMIN, photo: user.FOTO };
+  // * SESION UNICA
+  const sessionId = await assignUserSession(user.id);
+  const payload = generateSessionPayload(user, sessionId);
+
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
@@ -35,6 +40,7 @@ export async function login(email, password) {
       email: user.EMAIL,
       name: user.NOMBRE,
       photo: user.FOTO
-    }
+    },
+    sessionId
   };
 }
