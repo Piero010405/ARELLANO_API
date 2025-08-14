@@ -1,1 +1,0 @@
-API running securely on port \\.\pipe\0ffba939-dc96-4aaf-b205-58aba3aceaa5
