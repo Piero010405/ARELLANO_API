@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "start:prod": "NODE_ENV=production node src/server.js",
+    "build": "echo \"No build needed for pure JS. Preparing production...\" && npm install --omit=dev"
   },
   "keywords": [],
   "author": "",
