@@ -1,7 +1,7 @@
 // src/services/passwordResetService.js
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import transporter from "../config/mailer.js";
+import mg from "../config/mailer.js";
 import { resetPasswordEmail } from "../utils/emailTemplates.js";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 
@@ -20,14 +20,15 @@ export async function requestPasswordReset(email) {
   await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
 
   const mailOptions = resetPasswordEmail(NOMBRE, otp, expiresAt.toLocaleTimeString());
-  await transporter.sendMail({
-    from: `"Soporte Arellano" <${process.env.OUTLOOK_USER}>`,
+  // envío de correo con Mailgun
+  await mg.messages().send({
+    from: `Soporte Arellano <${process.env.MAILGUN_FROM_EMAIL}>`,
     to: email,
     subject: mailOptions.subject,
     text: mailOptions.text,
     html: mailOptions.html,
   });
-
+  
   return { success: true, expiresAt };
 }
 

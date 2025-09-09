@@ -1,17 +1,10 @@
 // src/config/mailer.js
-import nodemailer from "nodemailer";
+import mailgun from "mailgun-js";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.office365.com",
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: process.env.OUTLOOK_USER, // tu correo empresarial
-    pass: process.env.OUTLOOK_PASS, // contraseña o app password
-  },
-  tls: {
-    ciphers: "SSLv3",
-  },
+const mg = mailgun({
+  apiKey: process.env.MAILGUN_API_KEY,
+  domain: process.env.MAILGUN_DOMAIN,
+  host: process.env.MAILGUN_BASE_URL || "https://api.mailgun.net/v3",
 });
 
-export default transporter;
+export default mg;
