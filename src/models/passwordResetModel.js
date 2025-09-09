@@ -22,9 +22,25 @@ export async function findToken(token) {
   return result.recordset[0];
 }
 
+export async function findUserByEmail(email) {
+  const pool = await db.getConnection();
+  const result = await pool.request()
+    .input("EMAIL", sql.NVarChar(255), email)
+    .query("SELECT SUPERVISOR_ID, NOMBRE FROM [dbo].[AS] WHERE EMAIL = @EMAIL");
+  return result.recordset[0];
+}
+
 export async function deleteToken(token) {
   const pool = await db.getConnection();
   await pool.request()
     .input("TOKEN", sql.NVarChar(10), token)
     .query("DELETE FROM PASSWORD_RESET_TOKENS WHERE TOKEN = @TOKEN");
+}
+
+export async function updatePassword(password, supervisorId) {
+  const pool = await db.getConnection();
+  await pool.request()
+    .input("SUPERVISOR_ID", sql.Int, supervisorId)
+    .input("PASSWORD", sql.NVarChar(255), password)
+    .query("UPDATE [dbo].[AS] SET PASSWORD = @PASSWORD WHERE SUPERVISOR_ID = @SUPERVISOR_ID");
 }

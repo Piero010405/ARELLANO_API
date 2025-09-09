@@ -30,7 +30,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/metricas', metricasRoutes);
 app.use('/api/proyecciones', proyeccionesRoutes);
 app.use('/api/stores', storesRoutes);
-app.use("/api/auth", passwordResetRoutes);
 
 // Rechazar rutas desconocidas
 app.use("*", (req, res) => {
