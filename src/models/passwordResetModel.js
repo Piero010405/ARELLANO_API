@@ -9,7 +9,7 @@ export async function createResetToken(supervisorId, token, expiresAt) {
     .input("TOKEN", sql.NVarChar(10), token)
     .input("EXPIRES_AT", sql.DateTime, expiresAt)
     .query(`
-      INSERT INTO PasswordResetTokens (SUPERVISOR_ID, TOKEN, EXPIRES_AT)
+      INSERT INTO PASSWORD_RESET_TOKENS (SUPERVISOR_ID, TOKEN, EXPIRES_AT)
       VALUES (@SUPERVISOR_ID, @TOKEN, @EXPIRES_AT)
     `);
 }
@@ -18,7 +18,7 @@ export async function findToken(token) {
   const pool = await db.getConnection();
   const result = await pool.request()
     .input("TOKEN", sql.NVarChar(10), token)
-    .query("SELECT * FROM PasswordResetTokens WHERE TOKEN = @TOKEN");
+    .query("SELECT * FROM PASSWORD_RESET_TOKENS WHERE TOKEN = @TOKEN");
   return result.recordset[0];
 }
 
@@ -26,5 +26,5 @@ export async function deleteToken(token) {
   const pool = await db.getConnection();
   await pool.request()
     .input("TOKEN", sql.NVarChar(10), token)
-    .query("DELETE FROM PasswordResetTokens WHERE TOKEN = @TOKEN");
+    .query("DELETE FROM PASSWORD_RESET_TOKENS WHERE TOKEN = @TOKEN");
 }
