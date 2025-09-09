@@ -7,7 +7,6 @@ import authRoutes from './routes/authRoutes.js';
 import metricasRoutes from "./routes/metricasRoutes.js";
 import proyeccionesRoutes from "./routes/proyeccionesRoutes.js";
 import storesRoutes from "./routes/storesRoutes.js";
-import passwordResetRoutes from "./routes/passwordResetRoutes.js";
 import { errorHandler } from './middlewares/errorHandler.js';
 
 dotenv.config();
