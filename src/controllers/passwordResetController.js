@@ -1,5 +1,5 @@
 // src/controllers/passwordResetController.js
-import * as passwordResetService from "../services/passwordResetService";
+import * as passwordResetService from "../services/passwordResetService.js";
 
 export async function requestReset(req, res) {
   try {
