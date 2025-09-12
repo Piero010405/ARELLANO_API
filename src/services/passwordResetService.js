@@ -2,7 +2,8 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import resend from "../config/mailer.js";
-import { resetPasswordEmail } from "../utils/emailTemplates.js";
+import { render } from "@react-email/render";
+import { resetPasswordEmail } from "../emails/ResetPasswordEmail.jsx";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 
 export async function requestPasswordReset(email) {
@@ -19,15 +20,18 @@ export async function requestPasswordReset(email) {
 
   await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
 
-  const mailOptions = resetPasswordEmail(NOMBRE, otp, expiresAt);
-  
+  // * Generamos HTML y texto a partir del componente React
+  const emailHtml = render(<ResetPasswordEmail name={NOMBRE} otp={otp} expiresAt={expiresAt} />);
+  const emailText = render(<ResetPasswordEmail name={NOMBRE} otp={otp} expiresAt={expiresAt} />, { plainText: true });
+
   // * Envío de correo con Resend
   await resend.emails.send({
     // from: `Soporte Arellano <soporte@apiauditoria.arellano.pe>`, // dominio verificado en Resend
     from: `Soporte Arellano <onboarding@resend.dev>`, // dominio verificado en Resend
     to: email,
-    subject: mailOptions.subject,
-    react: mailOptions.react, // JSX
+    subject: "Restablecer contraseña - Arellano Auditoría",
+    html: emailHtml,
+    text: emailText,
   });
   
   return { success: true, expiresAt };
