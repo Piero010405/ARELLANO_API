@@ -2,8 +2,9 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import resend from "../config/mailer.js";
+import React from "react";
 import { render } from "@react-email/render";
-import { resetPasswordEmail } from "../emails/ResetPasswordEmail.jsx";
+import { ResetPasswordEmail } from "../emails/ResetPasswordEmail.jsx";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 
 export async function requestPasswordReset(email) {
@@ -21,8 +22,23 @@ export async function requestPasswordReset(email) {
   await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
 
   // * Generamos HTML y texto a partir del componente React
-  const emailHtml = render(<ResetPasswordEmail name={NOMBRE} otp={otp} expiresAt={expiresAt} />);
-  const emailText = render(<ResetPasswordEmail name={NOMBRE} otp={otp} expiresAt={expiresAt} />, { plainText: true });
+  // * Render sin JSX
+  const emailHtml = render(
+    React.createElement(ResetPasswordEmail, {
+      name: NOMBRE,
+      otp,
+      expiresAt,
+    })
+  );
+
+  const emailText = render(
+    React.createElement(ResetPasswordEmail, {
+      name: NOMBRE,
+      otp,
+      expiresAt,
+    }),
+    { plainText: true }
+  );
 
   // * Envío de correo con Resend
   await resend.emails.send({
