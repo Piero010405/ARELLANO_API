@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import resend from "../config/mailer.js";
 import React from "react";
 import { render } from "@react-email/render";
-import { ResetPasswordEmail } from "../emails/ResetPasswordEmail.jsx";
+import { ResetPasswordEmail } from "../emails/ResetPasswordEmail.js";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 
 export async function requestPasswordReset(email) {
