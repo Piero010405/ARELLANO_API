@@ -1,7 +1,7 @@
 // src/services/passwordResetService.js
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import mg from "../config/mailer.js";
+import resend from "../config/mailer.js";
 import { resetPasswordEmail } from "../utils/emailTemplates.js";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 
@@ -19,14 +19,15 @@ export async function requestPasswordReset(email) {
 
   await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
 
-  const mailOptions = resetPasswordEmail(NOMBRE, otp, expiresAt.toLocaleTimeString());
-  // envío de correo con Mailgun
-  await mg.messages().send({
-    from: `Soporte Arellano <${process.env.MAILGUN_FROM_EMAIL}>`,
+  const mailOptions = resetPasswordEmail(NOMBRE, otp, expiresAt);
+  
+  // * Envío de correo con Resend
+  await resend.emails.send({
+    // from: `Soporte Arellano <soporte@apiauditoria.arellano.pe>`, // dominio verificado en Resend
+    from: `Soporte Arellano <onboarding@resend.dev>`, // dominio verificado en Resend
     to: email,
     subject: mailOptions.subject,
-    text: mailOptions.text,
-    html: mailOptions.html,
+    react: mailOptions.react, // JSX
   });
   
   return { success: true, expiresAt };

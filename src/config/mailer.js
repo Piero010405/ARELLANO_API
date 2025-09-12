@@ -1,10 +1,6 @@
 // src/config/mailer.js
-import mailgun from "mailgun-js";
+import { Resend } from 'resend';
 
-const mg = mailgun({
-  apiKey: process.env.MAILGUN_API_KEY,
-  domain: process.env.MAILGUN_DOMAIN,
-  host: process.env.MAILGUN_BASE_URL || "https://api.mailgun.net/v3",
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default mg;
+export default resend;
