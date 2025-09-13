@@ -8,49 +8,55 @@ import { ResetPasswordEmail } from "../emails/ResetPasswordEmail.js";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 
 export async function requestPasswordReset(email) {
-  const user = await PasswordResetModel.findUserByEmail(email);
+  try {
+    const user = await PasswordResetModel.findUserByEmail(email);
 
-  if (!user) {
-    throw new Error("No existe un usuario asociado a este correo.");
+    if (!user) {
+      return { success: false, message: "No existe un usuario asociado a este correo." };
+    }
+    
+    const { SUPERVISOR_ID, NOMBRE } = user;
+
+    const otp = crypto.randomInt(100000, 999999).toString(); // código 6 dígitos
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+
+    await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
+
+    // * Generamos HTML y texto a partir del componente React
+    // * Render sin JSX
+    const emailHtml = await render(
+      React.createElement(ResetPasswordEmail, { name: NOMBRE, otp, expiresAt })
+    );
+
+    const emailText = await render(
+      React.createElement(ResetPasswordEmail, { name: NOMBRE, otp, expiresAt }),
+      { plainText: true }
+    );
+
+
+    // * Envío de correo con Resend
+    const result = await resend.emails.send({
+      // from: `Soporte Arellano <soporte@apiauditoria.arellano.pe>`, // dominio verificado en Resend
+      from: `Soporte Arellano <onboarding@resend.dev>`, // dominio verificado en Resend
+      to: email,
+      subject: "Restablecer contraseña - Arellano Auditoría",
+      html: emailHtml,
+      text: emailText,
+    });
+
+    if (result.error) {
+      return { success: false, message: `Error al enviar correo: ${result.error}` };
+    }
+    
+    return { success: true, expiresAt };
+  } catch (error) {
+    console.error("Error en requestPasswordReset:", error);
+    return {
+      success: false,
+      message: "Hubo un error interno al procesar la solicitud de restablecimiento.",
+      details: error.message, // opcional, para debugging
+    };
   }
-  
-  const { SUPERVISOR_ID, NOMBRE } = user;
-
-  const otp = crypto.randomInt(100000, 999999).toString(); // código 6 dígitos
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
-
-  await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
-
-  // * Generamos HTML y texto a partir del componente React
-  // * Render sin JSX
-  const emailHtml = render(
-    React.createElement(ResetPasswordEmail, {
-      name: NOMBRE,
-      otp,
-      expiresAt,
-    })
-  );
-
-  const emailText = render(
-    React.createElement(ResetPasswordEmail, {
-      name: NOMBRE,
-      otp,
-      expiresAt,
-    }),
-    { plainText: true }
-  );
-
-  // * Envío de correo con Resend
-  await resend.emails.send({
-    // from: `Soporte Arellano <soporte@apiauditoria.arellano.pe>`, // dominio verificado en Resend
-    from: `Soporte Arellano <onboarding@resend.dev>`, // dominio verificado en Resend
-    to: email,
-    subject: "Restablecer contraseña - Arellano Auditoría",
-    html: emailHtml,
-    text: emailText,
-  });
-  
-  return { success: true, expiresAt };
 }
 
 export async function resetPassword(token, newPassword) {

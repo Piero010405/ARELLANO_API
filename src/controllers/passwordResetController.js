@@ -5,9 +5,20 @@ export async function requestReset(req, res) {
   try {
     const { email } = req.body;
     const result = await passwordResetService.requestPasswordReset(email);
-    res.json({ message: "Correo enviado", expiresAt: result.expiresAt });
+
+    if (!result.success) {
+      // errores esperados (usuario no existe, error al enviar correo)
+      return res.status(400).json(result);
+    }
+
+    // éxito
+    return res.status(200).json(result);
   } catch (err) {
-    return res.status(400).json({ success: false, message: err.message });
+    console.error("Error en requestReset:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Error interno en el servidor",
+    });
   }
 }
 
