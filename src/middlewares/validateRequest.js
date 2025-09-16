@@ -8,8 +8,8 @@ export function validatePasswordMiddleware(req, res, next) {
   const { newPassword } = req.body;
 
   const { valid, errors } = validatePassword(newPassword, {
-    username: req.user?.username, // opcional si tienes datos del usuario
-    email: req.user?.email,       // opcional si lo recuperas del token
+    username: req.user?.username,
+    email: req.user?.email,
   });
 
   if (!valid) {

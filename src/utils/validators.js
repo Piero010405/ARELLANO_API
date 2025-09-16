@@ -2,7 +2,7 @@
 
 // Lista de contraseñas inseguras comunes
 const weakPasswords = [
-  "123456", "password", "123456789", "qwerty", "111111", "abc123", "Arellano123", "Arellano2025", "Arellano2022", "Arellano2023", "Arellano2024"
+  "123456", "password", "123456789", "qwerty", "111111", "abc123", "Arellano123", "Arellano2025", "Arellano2022", "Arellano2023", "Arellano2024", "Arellano$2025", "Arellano$2025$"
 ];
 
 /**

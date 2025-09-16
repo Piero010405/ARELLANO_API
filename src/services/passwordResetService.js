@@ -88,7 +88,7 @@ export async function resetPassword(token, newPassword) {
   const hash = await bcrypt.hash(newPassword, 10);
 
   // Actualizar la contraseña
-  await PasswordResetModel.updatePassword(hash, record.SUPERVISOR_ID);
+  await PasswordResetModel.updatePassword(hash, record.USER_ID);
 
   // Eliminamos el token
   await PasswordResetModel.deleteToken(token);
