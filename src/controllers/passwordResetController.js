@@ -10,8 +10,7 @@ export async function requestReset(req, res) {
       // errores esperados (usuario no existe, error al enviar correo)
       return res.status(400).json(result);
     }
-
-    // éxito
+    
     return res.status(200).json(result);
   } catch (err) {
     console.error("Error en requestReset:", err);
