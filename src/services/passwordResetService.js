@@ -38,7 +38,8 @@ export async function requestPasswordReset(email) {
     const result = await resend.emails.send({
       // from: `Soporte Arellano <soporte@apiauditoria.arellano.pe>`, // dominio verificado en Resend
       from: `Soporte Arellano <onboarding@resend.dev>`, // dominio verificado en Resend
-      to: email,
+      //to: email,
+      to: "piero.arellano.2004@gmail.com",
       subject: "Restablecer contraseña - Arellano Auditoría",
       html: emailHtml,
       text: emailText,
