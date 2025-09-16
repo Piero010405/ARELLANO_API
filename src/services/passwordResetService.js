@@ -75,10 +75,13 @@ export async function requestPasswordReset(email) {
 export async function resetPassword(token, newPassword) {
   const record = await PasswordResetModel.findToken(token);
 
-  if (!record) throw new Error("Token inválido.");
+  if (!record) {
+    return { success: false, message: "El token no es valido." };
+  }
+
   if (new Date(record.EXPIRES_AT) < new Date()) {
     await PasswordResetModel.deleteToken(token);
-    throw new Error("El token ha expirado.");
+    return { success: false, message: "El token ha expirado." };
   }
 
   // Encriptar la nueva contraseña
@@ -90,5 +93,5 @@ export async function resetPassword(token, newPassword) {
   // Eliminamos el token
   await PasswordResetModel.deleteToken(token);
 
-  return { success: true };
+  return { success: true, message: "La contraseña ha sido restablecida." };
 }

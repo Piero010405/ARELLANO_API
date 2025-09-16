@@ -25,9 +25,18 @@ export async function requestReset(req, res) {
 export async function resetPassword(req, res) {
   try {
     const { token, newPassword } = req.body;
-    await passwordResetService.resetPassword(token, newPassword);
-    res.json({ message: "Contraseña actualizada correctamente" });
+    const result = await passwordResetService.resetPassword(token, newPassword);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.status(200).json(result);
   } catch (err) {
-    return res.status(400).json({ success: false, message: err.message });
+    console.error("Error en resetPassword:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Error interno en el servidor",
+    });
   }
 }
