@@ -22,6 +22,38 @@ export async function createResetToken(supervisorId, token, expiresAt) {
   });
 }
 
+export async function createRequestLog(userId, endpoint) {
+  return withRetry(async () => {
+    const pool = await getConnection();
+    await pool.request()
+      .input("USER_ID", sql.Int, userId)
+      .input("ENDPOINT", sql.NVarChar(100), endpoint)
+      .query(`
+        INSERT INTO REQUEST_LOGS (USER_ID, ENDPOINT)
+        VALUES (@USER_ID, @ENDPOINT);
+      `);
+  });
+}
+
+export async function validateRequestLog(userId, endpoint) {
+  return withRetry(async () => {
+    const pool = await getConnection();
+    const result = await pool.request()
+      .input("USER_ID", sql.Int, userId)
+      .input("ENDPOINT", sql.NVarChar(100), endpoint)
+      .query(`
+        SELECT COUNT(*) AS RequestCount
+        FROM REQUEST_LOGS
+        WHERE USER_ID = @USER_ID
+        AND ENDPOINT = @ENDPOINT
+        AND REQUEST_TIMESTAMP >= DATEADD(day, -1, GETDATE());
+      `);
+    
+    return result.recordset[0].RequestCount; 
+  });
+
+}
+
 export async function findToken(token) {
   return withRetry(async () => {
     const pool = await getConnection();

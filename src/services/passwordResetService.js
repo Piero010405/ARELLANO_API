@@ -6,6 +6,8 @@ import React from "react";
 import { render } from "@react-email/render";
 import { ResetPasswordEmail } from "../emails/ResetPasswordEmail.js";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
+import { API_ENDPOINTS } from "../utils/consts.js";
+import { API_ENDPOINTS_RATE_LIMIT } from "../utils/consts.js";
 
 export async function requestPasswordReset(email) {
   try {
@@ -20,7 +22,17 @@ export async function requestPasswordReset(email) {
     const otp = crypto.randomInt(100000, 999999).toString(); // código 6 dígitos
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
+    // * Validamos el RATE LIMIT
+    const requestLog = await PasswordResetModel.validateRequestLog(SUPERVISOR_ID, API_ENDPOINTS.RESET_PASSWORD);
+    
+    if (requestLog >= API_ENDPOINTS_RATE_LIMIT.RESET_PASSWORD) {
+      return { success: false, message: "Has alcanzado el límite de solicitudes de restablecimiento de contraseña." };
+    }
+    
+    // * Creamos el token
     await PasswordResetModel.createResetToken(SUPERVISOR_ID, otp, expiresAt);
+    // * Creamos el log de la solicitud
+    await PasswordResetModel.createRequestLog(SUPERVISOR_ID, API_ENDPOINTS.RESET_PASSWORD);
 
     // * Generamos HTML y texto a partir del componente React
     // * Render sin JSX
@@ -32,7 +44,6 @@ export async function requestPasswordReset(email) {
       React.createElement(ResetPasswordEmail, { name: NOMBRE, otp, expiresAt }),
       { plainText: true }
     );
-
 
     // * Envío de correo con Resend
     const result = await resend.emails.send({
