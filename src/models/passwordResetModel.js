@@ -10,8 +10,14 @@ export async function createResetToken(supervisorId, token, expiresAt) {
       .input("TOKEN", sql.NVarChar(10), token)
       .input("EXPIRES_AT", sql.DateTime, expiresAt)
       .query(`
-        INSERT INTO PASSWORD_RESET_TOKENS (SUPERVISOR_ID, TOKEN, EXPIRES_AT)
-        VALUES (@SUPERVISOR_ID, @TOKEN, @EXPIRES_AT)
+        MERGE PASSWORD_RESET_TOKENS AS target
+        USING (SELECT @SUPERVISOR_ID AS SUPERVISOR_ID, @TOKEN AS TOKEN, @EXPIRES_AT AS EXPIRES_AT) AS source
+        ON (target.SUPERVISOR_ID = source.SUPERVISOR_ID)
+        WHEN MATCHED THEN
+          UPDATE SET TOKEN = source.TOKEN, EXPIRES_AT = source.EXPIRES_AT, CREATED_AT = GETDATE()
+        WHEN NOT MATCHED THEN
+          INSERT (SUPERVISOR_ID, TOKEN, EXPIRES_AT)
+          VALUES (source.SUPERVISOR_ID, source.TOKEN, source.EXPIRES_AT);
       `);
   });
 }
