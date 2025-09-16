@@ -8,6 +8,7 @@ import { ResetPasswordEmail } from "../emails/ResetPasswordEmail.js";
 import * as PasswordResetModel from "../models/passwordResetModel.js";
 import { API_ENDPOINTS } from "../utils/consts.js";
 import { API_ENDPOINTS_RATE_LIMIT } from "../utils/consts.js";
+import { TIME_LIMITS } from "../utils/consts.js";
 
 export async function requestPasswordReset(email) {
   try {
@@ -20,7 +21,7 @@ export async function requestPasswordReset(email) {
     const { SUPERVISOR_ID, NOMBRE } = user;
 
     const otp = crypto.randomInt(100000, 999999).toString(); // código 6 dígitos
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    const expiresAt = new Date(Date.now() + TIME_LIMITS.RESET_PASSWORD); // 10 min
 
     // * Validamos el RATE LIMIT
     const requestLog = await PasswordResetModel.validateRequestLog(SUPERVISOR_ID, API_ENDPOINTS.RESET_PASSWORD);
