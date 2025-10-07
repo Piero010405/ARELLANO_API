@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import metricasRoutes from "./routes/metricasRoutes.js";
 import proyeccionesRoutes from "./routes/proyeccionesRoutes.js";
 import storesRoutes from "./routes/storesRoutes.js";
+import lastUpdateRoutes from "./routes/lastUpdateRoutes.js";
 import { errorHandler } from './middlewares/errorHandler.js';
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/metricas', metricasRoutes);
 app.use('/api/proyecciones', proyeccionesRoutes);
 app.use('/api/stores', storesRoutes);
+app.use('/api/last-update', lastUpdateRoutes);
 
 // Rechazar rutas desconocidas
 app.use("*", (req, res) => {
