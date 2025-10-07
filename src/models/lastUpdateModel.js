@@ -7,7 +7,7 @@ export const getLastUpdate = async (filename) => {
     const pool = await getConnection();
 
     const result = await pool.request()
-    .input('file_name', sql.Int, filename)
+    .input('file_name', sql.NVarChar, filename)
     .query(`SELECT * FROM FECHA_ACTUALIZACION WHERE ARCHIVO = @file_name`);
 
     return result.recordset[0];
