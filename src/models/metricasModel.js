@@ -42,10 +42,19 @@ export const getMetricas = async (userId, isAdmin) => {
       query += `
         AND EXISTS (
           SELECT 1
-          FROM dbo.APP_USUARIO_AS_ASIGNACION UAA
-          WHERE UAA.USUARIO_ID = @userId
-            AND UAA.ACTIVO = 1
-            AND UAA.AS_ID = HIT.AS_ID
+          FROM dbo.APP_AS_PROVINCE_ASIGNACION APA
+          WHERE APA.ACTIVO = 1
+            AND APA.PROVINCE_ID = HIT.PROVINCE_ID
+            AND (
+              EXISTS (
+                SELECT 1
+                FROM dbo.APP_USUARIO_AS_ASIGNACION UAA
+                WHERE UAA.USUARIO_ID = @userId
+                  AND UAA.ACTIVO = 1
+                  AND UAA.AS_ID = APA.AS_ID
+              )
+              OR APA.AS_ID = @userId
+            )
         )
       `;
     }

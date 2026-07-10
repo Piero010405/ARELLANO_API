@@ -70,10 +70,22 @@ const BASE_STORE_SELECT = `
 const USER_SCOPE_FILTER = `
   AND EXISTS (
     SELECT 1
-    FROM dbo.APP_USUARIO_AS_ASIGNACION UAA
-    WHERE UAA.USUARIO_ID = @userId
-      AND UAA.ACTIVO = 1
-      AND UAA.AS_ID = HIT.AS_ID
+    FROM dbo.APP_AS_PROVINCE_ASIGNACION APA
+    WHERE APA.ACTIVO = 1
+      AND APA.PROVINCE_ID = HIT.PROVINCE_ID
+      AND (
+        -- Caso 1: el usuario tiene AS_ID asignados manualmente
+        EXISTS (
+          SELECT 1
+          FROM dbo.APP_USUARIO_AS_ASIGNACION UAA
+          WHERE UAA.USUARIO_ID = @userId
+            AND UAA.ACTIVO = 1
+            AND UAA.AS_ID = APA.AS_ID
+        )
+
+        -- Caso 2: fallback inclusivo si el usuario también es AS_ID
+        OR APA.AS_ID = @userId
+      )
   )
 `;
 
