@@ -11,7 +11,7 @@ export const storesController = async (req, res) => {
     const rawOffset = parseInt(req.query.offset || "0", 10);
 
     const pageSize = Number.isFinite(rawPageSize)
-      ? Math.min(Math.max(rawPageSize, 1), 100)
+      ? Math.min(Math.max(rawPageSize, 1), 10000)
       : 10;
 
     const offset = Number.isFinite(rawOffset)
