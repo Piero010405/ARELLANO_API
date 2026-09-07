@@ -18,16 +18,35 @@ export async function getConnection() {
 }
 
 // Reintento automático (opcional exportable)
-export async function withRetry(fn, retries = 3, delay = 2000) {
-  let attempt = 0;
-  while (attempt < retries) {
+export const withRetry = async (operation, retries = 3, delay = 2000) => {
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      return await fn();
-    } catch (error) {
-      attempt++;
-      console.warn(`Intento ${attempt} fallido. Reintentando en ${delay}ms...`);
-      await new Promise(res => setTimeout(res, delay));
+      return await operation();
+    } catch (err) {
+      lastError = err;
+
+      console.error(`[DB ERROR] Intento ${attempt} fallido`, {
+        name: err?.name,
+        message: err?.message,
+        code: err?.code,
+        number: err?.number,
+        state: err?.state,
+        class: err?.class,
+        serverName: err?.serverName,
+        procName: err?.procName,
+        lineNumber: err?.lineNumber,
+      });
+
+      if (attempt < retries) {
+        console.error(`Intento ${attempt} fallido. Reintentando en ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
     }
   }
-  throw new Error('Error persistente en la operación con la base de datos.');
-}
+
+  console.error("[DB ERROR FINAL]", lastError);
+
+  throw new Error("Error persistente en la operación con la base de datos.");
+};
